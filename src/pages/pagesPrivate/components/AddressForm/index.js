@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import useErrors from '../../../../hooks/useErrors';
 
 import { Form, ButtonContainer } from './styles';
@@ -8,6 +8,7 @@ import AddressService from '../../../../services/AddressService';
 import FormGrouping from '../../../../components/FormGrouping';
 import Input from '../../../../components/Input';
 import Button from '../../../../components/Button';
+import { sucessAlert, errorAlert } from '../../../../utils/showAlert';
 
 export default function AddressForm({
   idEndereco, buttonLabel, idResp, edit,
@@ -19,6 +20,8 @@ export default function AddressForm({
   const [numero, setNumero] = useState('');
   const [bairro, setBairro] = useState('');
   const [complemento, setComplemento] = useState('');
+
+  const navigate = useNavigate();
 
   const {
     setError, removeError, getErrorsMEssageByFieldName, errors,
@@ -37,8 +40,7 @@ export default function AddressForm({
       setBairro(data.bairro);
       setComplemento(data.complemento);
     } catch (err) {
-      console.log('erro');
-      // console.log(err);
+      errorAlert({ msg: 'Erro ao buscar dados do endereço' });
     }
   }, [idResp]);
 
@@ -73,11 +75,13 @@ export default function AddressForm({
 
       if (edit) {
         await AddressService.updateAddress(idEndereco, dataEnd);
+        sucessAlert({ msg: 'Endereço alterado com sucesso' });
       } else {
         await AddressService.createAddress(dataEnd);
+        navigate('/adm/familias/');
       }
     } catch (err) {
-      // console.log(err);
+      errorAlert({ msg: `Erro inesperado ${err}` });
     }
   };
 

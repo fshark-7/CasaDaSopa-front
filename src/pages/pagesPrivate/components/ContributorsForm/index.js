@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 
+import { useNavigate } from 'react-router-dom';
+
 import isEmailValid from '../../../../utils/isEmailValid';
 import formatPhone from '../../../../utils/formatPhone';
 import formatCpf from '../../../../utils/formatCpf';
@@ -11,6 +13,7 @@ import ContributorService from '../../../../services/ContributorService';
 import FormGrouping from '../../../../components/FormGrouping';
 import Input from '../../../../components/Input';
 import Button from '../../../../components/Button';
+import { sucessAlert, errorAlert } from '../../../../utils/showAlert';
 
 export default function ContributorsForm({ id, buttonLabel }) {
   const [nome, setNome] = useState('');
@@ -18,6 +21,8 @@ export default function ContributorsForm({ id, buttonLabel }) {
   const [cpf, setCpf] = useState('');
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
+
+  const navigate = useNavigate();
 
   const {
     setError, removeError, getErrorsMEssageByFieldName, errors,
@@ -34,7 +39,7 @@ export default function ContributorsForm({ id, buttonLabel }) {
       setTelefone(data.telefone);
       setEmail(data.email);
     } catch (err) {
-      console.log(err);
+      errorAlert({ msg: 'Erro ao buscar dados do colaborador' });
     }
   }, [id]);
 
@@ -83,14 +88,15 @@ export default function ContributorsForm({ id, buttonLabel }) {
       };
 
       if (id) {
-        const { message } = await ContributorService.updateContributor(id, dataContributors);
-        console.log(message);
+        await ContributorService.updateContributor(id, dataContributors);
+        sucessAlert({ msg: 'Colaborador alterado com sucesso' });
       } else {
-        const { message } = await ContributorService.createContributor(dataContributors);
-        console.log(message);
+        await ContributorService.createContributor(dataContributors);
+        sucessAlert({ msg: 'Colaborador cadastrado com sucesso' });
       }
+      navigate('/adm/colaboradores');
     } catch (err) {
-      console.log(err);
+      errorAlert({ msg: `Erro inesperado ${err}` });
     }
   };
 

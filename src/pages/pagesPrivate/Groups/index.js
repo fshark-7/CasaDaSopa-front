@@ -13,6 +13,7 @@ import HeaderContent from '../components/HeaderContent';
 import ErrorContainer from '../components/ErrorContainer';
 import InputSearch from '../../../components/InputSearch';
 import Table from '../components/Table';
+import { errorAlert, confirmeDeletAlert } from '../../../utils/showAlert';
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);
@@ -52,12 +53,11 @@ export default function Groups() {
   const handleRemove = async (id) => {
     try {
       setIsLoading(true);
-      const { message } = await GroupService.deleteGroup(id);
+      await GroupService.deleteGroup(id);
       loadEntities();
       setIsLoading(true);
-      console.log(message);
     } catch (err) {
-      console.log(err);
+      errorAlert({ msg: `Erro ao excluir o grupo: ${err}` });
     }
   };
 
@@ -114,7 +114,13 @@ export default function Groups() {
                                     <FaEdit className="edit" />
                                   </Link>
 
-                                  <FaTrash className="remove" onClick={() => handleRemove(group.id)} />
+                                  <FaTrash
+                                    className="remove"
+                                    onClick={() => confirmeDeletAlert(
+                                      { msg: 'Grupo excluido com sucesso.' },
+                                      () => handleRemove(group.id),
+                                    )}
+                                  />
                                 </td>
                               </tr>
                             ))

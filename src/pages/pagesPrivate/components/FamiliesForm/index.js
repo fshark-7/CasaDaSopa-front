@@ -12,9 +12,10 @@ import Input from '../../../../components/Input';
 import Select from '../../../../components/Select';
 import TextArea from '../../../../components/TextArea';
 import Button from '../../../../components/Button';
+import { sucessAlert, errorAlert } from '../../../../utils/showAlert';
 
 export default function FamiliesForm({
-  id, buttonLabel, setIdResp, func,
+  id, buttonLabel, func,
 }) {
   const [nome, setNome] = useState('');
   const [sobrenome, setSobrenome] = useState('');
@@ -43,7 +44,7 @@ export default function FamiliesForm({
       setRenda(data.renda);
       setOutrasInformacoes(data.outras_informacoes);
     } catch (err) {
-    //   console.log(err);
+      errorAlert({ msg: 'Erro ao buscar dados do responsável da família' });
     }
   }, [id]);
 
@@ -95,13 +96,14 @@ export default function FamiliesForm({
 
       if (id) {
         await FamilyService.updateFamily(id, dataFamilies);
+        sucessAlert({ msg: 'Responsável da família cadastrada com sucesso' });
       } else {
-        const { data } = await FamilyService.createFamily(dataFamilies);
-        setIdResp(data.id);
+        await FamilyService.createFamily(dataFamilies);
+        sucessAlert({ msg: 'Responsável da família cadastrada com sucesso' });
       }
       func();
     } catch (err) {
-    //   console.log(err);
+      errorAlert({ msg: `Erro inesperado ${err}` });
     }
   };
 

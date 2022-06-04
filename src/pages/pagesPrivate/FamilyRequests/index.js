@@ -13,6 +13,7 @@ import ErrorContainer from '../components/ErrorContainer';
 import InputSearch from '../../../components/InputSearch';
 import Table from '../components/Table';
 import HeaderForm from '../components/HeaderForm';
+import { errorAlert, confirmeDeletAlert } from '../../../utils/showAlert';
 
 export default function FamilyRequests() {
   const [responsavel] = useState(JSON.parse(localStorage.getItem('responsavel')));
@@ -23,7 +24,7 @@ export default function FamilyRequests() {
 
   const navigate = useNavigate();
 
-  const loadFamilies = async () => {
+  const loadFamiliesRequests = async () => {
     try {
       setIsLoading(true);
       const { data } = await FamilyRequestService.listFamilyResquest(responsavel.id);
@@ -37,7 +38,7 @@ export default function FamilyRequests() {
   };
 
   useEffect(() => {
-    loadFamilies();
+    loadFamiliesRequests();
   }, []);
 
   const filteredFamiliesRequests = useMemo(() => familiesRequests.filter((family) => (
@@ -49,18 +50,17 @@ export default function FamilyRequests() {
   };
 
   const handleTryAgain = () => {
-    loadFamilies();
+    loadFamiliesRequests();
   };
 
   const handleRemove = async (id) => {
     try {
       setIsLoading(true);
       await FamilyRequestService.deleteRequest(id);
-      loadFamilies();
+      loadFamiliesRequests();
       setIsLoading(true);
-    //   console.log(message);
     } catch (err) {
-    //   console.log(err);
+      errorAlert({ msg: `Erro ao excluir solicitação: ${err}` });
     }
   };
 
@@ -129,7 +129,10 @@ export default function FamilyRequests() {
                               <abbr title="Remover">
                                 <FaTrash
                                   className="remove"
-                                  onClick={() => handleRemove(familyRequest.id)}
+                                  onClick={() => confirmeDeletAlert(
+                                    { msg: 'Solicitação excluida com sucesso.' },
+                                    () => handleRemove(familyRequest.id),
+                                  )}
                                 />
                               </abbr>
                             </td>

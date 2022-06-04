@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Form, ButtonContainer } from './styles';
 
 import isEmailValid from '../../../../utils/isEmailValid';
@@ -10,6 +11,7 @@ import EntityService from '../../../../services/EntityService';
 import FormGrouping from '../../../../components/FormGrouping';
 import Input from '../../../../components/Input';
 import Button from '../../../../components/Button';
+import { sucessAlert, errorAlert } from '../../../../utils/showAlert';
 
 export default function EntitiesForm({ id, buttonLabel }) {
   const [name, setName] = useState('');
@@ -18,6 +20,8 @@ export default function EntitiesForm({ id, buttonLabel }) {
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
   const [endereco, setEndereco] = useState('');
+
+  const navigate = useNavigate();
 
   const {
     setError, removeError, getErrorsMEssageByFieldName, errors,
@@ -35,7 +39,7 @@ export default function EntitiesForm({ id, buttonLabel }) {
       setEmail(data.email);
       setEndereco(data.endereco);
     } catch (err) {
-      console.log(err);
+      errorAlert({ msg: 'Erro ao buscar dados da endidade' });
     }
   }, [id]);
 
@@ -84,14 +88,15 @@ export default function EntitiesForm({ id, buttonLabel }) {
       };
 
       if (id) {
-        const { message } = await EntityService.updateEntity(id, dataEntities);
-        console.log(message);
+        await EntityService.updateEntity(id, dataEntities);
+        sucessAlert({ msg: 'Entidade alterada com sucesso' });
       } else {
-        const { message } = await EntityService.createEntity(dataEntities);
-        console.log(message);
+        await EntityService.createEntity(dataEntities);
+        sucessAlert({ msg: 'Entidade cadastrada com sucesso' });
       }
+      navigate('/adm/entidades');
     } catch (err) {
-      console.log(err);
+      errorAlert({ msg: `Erro inesperado ${err}` });
     }
   };
 

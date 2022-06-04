@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import Button from '../../../components/Button';
 import FormGrouping from '../../../components/FormGrouping';
@@ -8,6 +8,7 @@ import Select from '../../../components/Select';
 import TextArea from '../../../components/TextArea';
 import HeaderForm from '../components/HeaderForm';
 import FamilyRequestService from '../../../services/FamilyRequestService';
+import { sucessAlert, errorAlert } from '../../../utils/showAlert';
 
 import {
   Container, Form, ButtonContainer,
@@ -20,6 +21,7 @@ export default function EditFamilyRequest() {
   const [status, setStatus] = useState('');
   const [idResp, setIdResp] = useState(0);
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const getDataRequestFamily = useCallback(async () => {
     try {
@@ -30,7 +32,7 @@ export default function EditFamilyRequest() {
       setNome(data.nome);
       setStatus(data.status);
     } catch (err) {
-      console.log(err);
+      errorAlert({ msg: 'Erro ao buscar dados da solicitação' });
     }
   }, [id]);
 
@@ -49,10 +51,11 @@ export default function EditFamilyRequest() {
         status,
       };
 
-      const { message } = await FamilyRequestService.updateRequest(id, dataReq);
-      console.log(message);
+      await FamilyRequestService.updateRequest(id, dataReq);
+      sucessAlert({ msg: 'Solicitação alterada com sucesso' });
+      navigate('/adm/familias/solicitacoes');
     } catch (err) {
-      console.log(err);
+      errorAlert({ msg: `Erro inesperado ${err}` });
     }
   };
 

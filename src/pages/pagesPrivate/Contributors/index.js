@@ -14,6 +14,7 @@ import Loader from '../../../components/Loader';
 import ErrorContainer from '../components/ErrorContainer';
 import InputSearch from '../../../components/InputSearch';
 import Table from '../components/Table';
+import { errorAlert, confirmeDeletAlert } from '../../../utils/showAlert';
 
 export default function Contributors() {
   const [contributors, setContributors] = useState([]);
@@ -53,12 +54,11 @@ export default function Contributors() {
   const handleRemove = async (id) => {
     try {
       setIsLoading(true);
-      const { message } = await ContributorService.deleteContributor(id);
+      await ContributorService.deleteContributor(id);
       loadContributors();
       setIsLoading(true);
-      console.log(message);
     } catch (err) {
-      console.log(err);
+      errorAlert({ msg: `Erro ao excluir o colaborador: ${err}` });
     }
   };
 
@@ -117,7 +117,13 @@ export default function Contributors() {
                                     <FaEdit className="edit" />
                                   </Link>
 
-                                  <FaTrash className="remove" onClick={() => handleRemove(contributor.id)} />
+                                  <FaTrash
+                                    className="remove"
+                                    onClick={() => confirmeDeletAlert(
+                                      { msg: 'Colaborador excluido com sucesso.' },
+                                      () => handleRemove(contributor.id),
+                                    )}
+                                  />
                                 </td>
                               </tr>
                             ))

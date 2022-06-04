@@ -10,12 +10,16 @@ export const Container = styled.main`
 export const Header = styled.div`
     text-align: center;
     margin-top: 20px;
+    border-bottom: 2px solid ${({ theme }) => theme.colors.gray[200]};
+    padding: 20px;
+
     h2{
         font-weight: 500;
     }
 `;
 
 export const Content = styled.div`
+    margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -23,6 +27,7 @@ export const Content = styled.div`
 `;
 
 export const Card = styled.div`
+    position: relative;
     width: 400px;
     height: 180px;
     background: ${({ theme }) => theme.colors.gray[200]};
@@ -45,9 +50,21 @@ export const Title = styled.div`
 export const Description = styled.div`
     height: 350px;
     padding-top: 8px;
+    position: absolute;
 `;
 
 export const FooterCard = styled.div`
-    background: aqua;
+    width: 100%;
     height: 20px;
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    text-align: center;
+    cursor: pointer;
+    color: ${({ theme }) => theme.colors.gray[300]};
+    font-weight: 500;
+    transition: 0.2s color ease-in;
+    &:hover{
+        color: ${({ theme }) => theme.colors.primary.main};
+    }
 `;

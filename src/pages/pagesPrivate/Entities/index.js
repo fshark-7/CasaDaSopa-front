@@ -13,6 +13,7 @@ import HeaderContent from '../components/HeaderContent';
 import ErrorContainer from '../components/ErrorContainer';
 import InputSearch from '../../../components/InputSearch';
 import Table from '../components/Table';
+import { errorAlert, confirmeDeletAlert } from '../../../utils/showAlert';
 
 export default function Entities() {
   const [entities, setEntities] = useState([]);
@@ -52,12 +53,11 @@ export default function Entities() {
   const handleRemove = async (id) => {
     try {
       setIsLoading(true);
-      const { message } = await EntityService.deleteEntity(id);
+      await EntityService.deleteEntity(id);
       loadEntities();
       setIsLoading(true);
-      console.log(message);
     } catch (err) {
-      console.log(err);
+      errorAlert({ msg: `Erro ao excluir a entidade: ${err}` });
     }
   };
   return (
@@ -115,7 +115,13 @@ export default function Entities() {
                                     <FaEdit className="edit" />
                                   </Link>
 
-                                  <FaTrash className="remove" onClick={() => handleRemove(entity.id)} />
+                                  <FaTrash
+                                    className="remove"
+                                    onClick={() => confirmeDeletAlert(
+                                      { msg: 'Entidade excluida com sucesso.' },
+                                      () => handleRemove(entity.id),
+                                    )}
+                                  />
                                 </td>
                               </tr>
                             ))

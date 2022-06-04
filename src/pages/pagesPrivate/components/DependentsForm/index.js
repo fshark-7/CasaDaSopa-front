@@ -11,6 +11,7 @@ import Input from '../../../../components/Input';
 import Select from '../../../../components/Select';
 import TextArea from '../../../../components/TextArea';
 import Button from '../../../../components/Button';
+import { sucessAlert, errorAlert } from '../../../../utils/showAlert';
 
 export default function DependentsForm({
   id, buttonLabel, idFamily,
@@ -38,7 +39,7 @@ export default function DependentsForm({
       setSexo(data.sexo);
       setOutrasInformacoes(data.outras_informacoes);
     } catch (err) {
-    //   console.log(err);
+      errorAlert({ msg: 'Erro ao buscar dados do dependente' });
     }
   }, [id]);
 
@@ -78,15 +79,16 @@ export default function DependentsForm({
         outras_informacoes: outrasInformacoes,
         id_empresa: 1,
       };
-      console.log(dataDepend);
 
       if (id) {
         await DependentService.updateDependent(id, dataDepend);
+        sucessAlert({ msg: 'Dependente alterado com sucesso' });
       } else {
         await DependentService.createDependent(dataDepend);
+        sucessAlert({ msg: 'Dependente cadastrado com sucesso' });
       }
     } catch (err) {
-    //   console.log(err);
+      errorAlert({ msg: `Erro inesperado ${err}` });
     }
   };
 

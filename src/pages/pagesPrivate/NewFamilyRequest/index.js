@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import Button from '../../../components/Button';
 import FormGrouping from '../../../components/FormGrouping';
@@ -6,6 +7,7 @@ import Input from '../../../components/Input';
 import TextArea from '../../../components/TextArea';
 import HeaderForm from '../components/HeaderForm';
 import FamilyRequestService from '../../../services/FamilyRequestService';
+import { sucessAlert, errorAlert } from '../../../utils/showAlert';
 
 import { Container, Form, ButtonContainer } from './styles';
 
@@ -13,6 +15,8 @@ export default function NewFamilyRequest() {
   const [responsavel] = useState(JSON.parse(localStorage.getItem('responsavel')));
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,8 +30,10 @@ export default function NewFamilyRequest() {
         id_empresa: 1,
       };
       await FamilyRequestService.createRequest(dataSolicitacao);
+      sucessAlert({ msg: 'Solicitação criada com sucesso' });
+      navigate('/adm/familias/solicitacoes');
     } catch (err) {
-    //   console.log(err);
+      errorAlert({ msg: `Erro inesperado ${err}` });
     }
   };
 

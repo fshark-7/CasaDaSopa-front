@@ -8,9 +8,9 @@ import {
 import Table from '../components/Table';
 import DependentService from '../../../services/DependentService';
 import Loader from '../../../components/Loader';
-// import HeaderContent from '../components/HeaderContent';
 import ErrorContainer from '../components/ErrorContainer';
 import Button from '../../../components/Button';
+import { errorAlert, confirmeDeletAlert } from '../../../utils/showAlert';
 
 export default function Dependents({ idFamily }) {
   const [dependents, setDependents] = useState([]);
@@ -18,11 +18,11 @@ export default function Dependents({ idFamily }) {
   const [hasError, setHasError] = useState(false);
 
   const navigate = useNavigate();
+
   const loadDependent = async () => {
     try {
       setIsLoading(true);
       const { data } = await DependentService.listDependents(idFamily);
-
       setHasError(false);
       setDependents(data);
     } catch {
@@ -46,9 +46,8 @@ export default function Dependents({ idFamily }) {
       await DependentService.deleteDependent(id);
       loadDependent();
       setIsLoading(true);
-    //   console.log(message);
     } catch (err) {
-    //   console.log(err);
+      errorAlert({ msg: `Erro ao excluir o dependente: ${err}` });
     }
   };
 
@@ -109,7 +108,13 @@ export default function Dependents({ idFamily }) {
                             className="edit"
                             onClick={() => handleEditDependente(dependent.id)}
                           />
-                          <FaTrash className="remove" onClick={() => handleRemove(dependent.id)} />
+                          <FaTrash
+                            className="remove"
+                            onClick={() => confirmeDeletAlert(
+                              { msg: 'Dependente excluido com sucesso.' },
+                              () => handleRemove(dependent.id),
+                            )}
+                          />
                         </td>
                       </tr>
                     ))

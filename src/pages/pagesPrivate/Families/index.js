@@ -13,6 +13,7 @@ import HeaderContent from '../components/HeaderContent';
 import ErrorContainer from '../components/ErrorContainer';
 import InputSearch from '../../../components/InputSearch';
 import Table from '../components/Table';
+import { errorAlert, confirmeDeletAlert } from '../../../utils/showAlert';
 
 export default function Families() {
   const [families, setFamilies] = useState([]);
@@ -58,9 +59,8 @@ export default function Families() {
       await FamilyService.deleteFamily(id);
       loadFamilies();
       setIsLoading(true);
-    //   console.log(message);
     } catch (err) {
-    //   console.log(err);
+      errorAlert({ msg: `Erro ao excluir a família: ${err}` });
     }
   };
 
@@ -131,7 +131,10 @@ export default function Families() {
                               <abbr title="Remover">
                                 <FaTrash
                                   className="remove"
-                                  onClick={() => handleRemove(family.id)}
+                                  onClick={() => confirmeDeletAlert(
+                                    { msg: 'Família excluida com sucesso.' },
+                                    () => handleRemove(family.id),
+                                  )}
                                 />
                               </abbr>
 

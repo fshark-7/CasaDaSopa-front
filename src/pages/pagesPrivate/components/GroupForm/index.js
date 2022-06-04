@@ -11,6 +11,7 @@ import GroupService from '../../../../services/GroupService';
 import FormGrouping from '../../../../components/FormGrouping';
 import Input from '../../../../components/Input';
 import Button from '../../../../components/Button';
+import { sucessAlert, errorAlert } from '../../../../utils/showAlert';
 
 export default function GroupForm({ id, buttonLabel }) {
   const [name, setName] = useState('');
@@ -26,7 +27,7 @@ export default function GroupForm({ id, buttonLabel }) {
       const { data } = await GroupService.getGroup(id);
       setName(data.nome);
     } catch (err) {
-      console.log(err);
+      errorAlert({ msg: 'Erro ao buscar dados do grupo' });
     }
   }, [id]);
 
@@ -54,15 +55,16 @@ export default function GroupForm({ id, buttonLabel }) {
       };
 
       if (id) {
-        const { message } = await GroupService.updateGroup(id, dataGroups);
-        console.log(message);
+        await GroupService.updateGroup(id, dataGroups);
+        sucessAlert({ msg: 'Grupo alterado com sucesso' });
+        navigate('/adm/grupos/');
       } else {
-        const { message, data } = await GroupService.createGroup(dataGroups);
-        console.log(message);
+        const { data } = await GroupService.createGroup(dataGroups);
+        sucessAlert({ msg: 'Grupo cadastrado com sucesso' });
         navigate(`/adm/grupos/edit/${data.id}`);
       }
     } catch (err) {
-      console.log(err);
+      errorAlert({ msg: `Erro inesperado ${err}` });
     }
   };
 
