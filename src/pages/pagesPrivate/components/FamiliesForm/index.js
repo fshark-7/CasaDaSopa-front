@@ -92,11 +92,11 @@ export default function FamiliesForm({
         />
       </FormGrouping>
 
-      <FormGrouping error={errors.nome?.message}>
+      <FormGrouping error={errors.sobrenome?.message}>
         <Input
-          error={errors.nome?.message}
-          placeholder="Nome *"
-          {...register('nome')}
+          error={errors.sobrenome?.message}
+          placeholder="Sobrenome *"
+          {...register('sobrenome')}
           maxLength={60}
         />
       </FormGrouping>
