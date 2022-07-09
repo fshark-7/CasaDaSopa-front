@@ -15,6 +15,7 @@ import ErrorContainer from '../components/ErrorContainer';
 import InputSearch from '../../../components/InputSearch';
 import Table from '../components/Table';
 import { errorAlert, confirmeDeletAlert } from '../../../utils/showAlert';
+import ColaboradoresPDF from '../components/Reports/ColaboradoresRelatorio';
 
 export default function Contributors() {
   const [contributors, setContributors] = useState([]);
@@ -83,6 +84,7 @@ export default function Contributors() {
           textPlu="colaboradores"
           textButtom="Novo Colaborador"
           to="/adm/colaboradores/new"
+          print={() => ColaboradoresPDF(contributors)}
         />
 
         {hasError && (

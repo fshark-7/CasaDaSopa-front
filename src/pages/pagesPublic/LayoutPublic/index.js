@@ -1,7 +1,8 @@
 import { Outlet, Link } from 'react-router-dom';
 
 import {
-  Container, Header, NavContainer, Logo, List, Footer,
+  Container, Header, NavContainer, Logo,
+  List, Content, Footer,
 } from './styles';
 
 export default function LayoutPublic() {
@@ -39,7 +40,9 @@ export default function LayoutPublic() {
 
       </Header>
 
-      <Outlet />
+      <Content>
+        <Outlet />
+      </Content>
 
       <Footer>
         Desenvolvido por Fabricio e Felipe

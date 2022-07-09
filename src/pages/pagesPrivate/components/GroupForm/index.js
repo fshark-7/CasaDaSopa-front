@@ -1,7 +1,8 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import useErrors from '../../../../hooks/useErrors';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 import {
   Form, ButtonContainer,
@@ -13,23 +14,30 @@ import Input from '../../../../components/Input';
 import Button from '../../../../components/Button';
 import { sucessAlert, errorAlert } from '../../../../utils/showAlert';
 
-export default function GroupForm({ id, buttonLabel }) {
-  const [name, setName] = useState('');
-  const navigate = useNavigate();
-  const {
-    setError, removeError, getErrorsMEssageByFieldName, errors,
-  } = useErrors();
+const schema = yup.object({
+  nome: yup.string()
+    .required('O nome é obrigatório.')
+    .min(3, 'O nome do grupo deve ter pelo menos 3 caractéres.'),
+}).required();
 
-  const isFormValid = (name && errors.length === 0);
+export default function GroupForm({ id, buttonLabel }) {
+  const navigate = useNavigate();
+
+  const {
+    register, handleSubmit, setValue, formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
 
   const getDataGroup = useCallback(async () => {
     try {
       const { data } = await GroupService.getGroup(id);
-      setName(data.nome);
+
+      setValue('nome', data[0].nome);
     } catch (err) {
       errorAlert({ msg: 'Erro ao buscar dados do grupo' });
     }
-  }, [id]);
+  }, [id, setValue]);
 
   useEffect(() => {
     if (id) {
@@ -37,20 +45,10 @@ export default function GroupForm({ id, buttonLabel }) {
     }
   }, [getDataGroup, id]);
 
-  const handleNameChange = (e) => {
-    setName(e.target.value);
-    if (!e.target.value) {
-      setError({ field: 'name', message: 'Nome do grupo é obrigatório.' });
-    } else {
-      removeError('name');
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (dados) => {
     try {
       const dataGroups = {
-        nome: name,
+        nome: dados.nome,
         id_empresa: 1,
       };
 
@@ -69,18 +67,18 @@ export default function GroupForm({ id, buttonLabel }) {
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <FormGrouping error={getErrorsMEssageByFieldName('name')}>
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      <FormGrouping error={errors.nome?.message}>
         <Input
+          error={errors.nome?.message}
           placeholder="Nome do grupo *"
-          value={name}
-          onChange={handleNameChange}
-          error={getErrorsMEssageByFieldName('name')}
+          {...register('nome')}
+          maxLength={60}
         />
       </FormGrouping>
 
       <ButtonContainer>
-        <Button type="submit" disabled={!isFormValid}>{buttonLabel}</Button>
+        <Button type="submit">{buttonLabel}</Button>
       </ButtonContainer>
     </Form>
   );

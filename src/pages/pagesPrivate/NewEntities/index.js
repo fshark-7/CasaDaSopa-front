@@ -1,4 +1,4 @@
-import EntitiesForm from '../components/EntitiesForm ';
+import EntitiesForm from '../components/EntitiesForm';
 import HeaderForm from '../components/HeaderForm';
 import { Container } from './styles';
 

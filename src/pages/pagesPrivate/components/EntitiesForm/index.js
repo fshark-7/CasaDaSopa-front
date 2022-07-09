@@ -6,22 +6,23 @@ import * as yup from 'yup';
 
 import { Form, ButtonContainer } from './styles';
 
-import formatCpf from '../../../../utils/formatCpf';
-import ContributorService from '../../../../services/ContributorService';
+import formatCnpj from '../../../../utils/formatCnpj';
+import EntityService from '../../../../services/EntityService';
 import FormGrouping from '../../../../components/FormGrouping';
 import Input from '../../../../components/Input';
 import Button from '../../../../components/Button';
 import { sucessAlert, errorAlert } from '../../../../utils/showAlert';
 
 const schema = yup.object({
-  nome: yup.string().required('O nome é obrigatório.').min(3, 'O nome deve ter pelo menos 3 caractéres.'),
-  sobrenome: yup.string().required('O sobrenome é obrigatório.').min(3, 'O sobrenome deve ter pelo menos 3 caractéres.'),
+  nome: yup.string().required('O nome fantasia é obrigatório.').min(3, 'O nome fantasia deve ter pelo menos 3 caracteres.'),
+  razao: yup.string().required('A razão social é obrigatória.').min(3, 'A razão social deve ter pelo menos 3 caractéres.'),
   telefone: yup.string().required('O telefone é obrigatório.').min(10, 'O telefone deve ter pelo menos 10 caractéres.'),
-  email: yup.string().required('O email é obrigatório.').email('Informe um email válido.'),
+  email: yup.string().required('O email é obrigatório.').email('Informe um email valido.'),
+  endereco: yup.string().required('O endereço é obrigatório.').min(3, 'O endereço deve ter pelo menos 3 caractéres.'),
 }).required();
 
-export default function ContributorsForm({ id, buttonLabel }) {
-  const [cpf, setCpf] = useState('');
+export default function EntitiesForm({ id, buttonLabel }) {
+  const [cnpj, setCnpj] = useState('');
   const navigate = useNavigate();
 
   const {
@@ -30,44 +31,45 @@ export default function ContributorsForm({ id, buttonLabel }) {
     resolver: yupResolver(schema),
   });
 
-  const getDataContributor = useCallback(async () => {
+  const getDataEntity = useCallback(async () => {
     try {
-      const { data } = await ContributorService.getContributor(id);
-      setValue('nome', data.nome);
-      setValue('sobrenome', data.sobrenome);
-      setCpf(data.cpf);
+      const { data } = await EntityService.getEntity(id);
+      setValue('nome', data.nome_fantasia);
+      setValue('razao', data.razao_social);
+      setCnpj(data.cnpj);
       setValue('telefone', data.telefone);
       setValue('email', data.email);
+      setValue('endereco', data.endereco);
     } catch (err) {
-      errorAlert({ msg: 'Erro ao buscar dados do colaborador' });
+      errorAlert({ msg: 'Erro ao buscar dados da endidade' });
     }
   }, [id, setValue]);
 
   useEffect(() => {
     if (id) {
-      getDataContributor();
+      getDataEntity();
     }
-  }, [getDataContributor, id]);
+  }, [getDataEntity, id]);
 
   const onSubmit = async (data) => {
     try {
-      const dataContributors = {
-        nome: data.nome,
-        sobrenome: data.sobrenome,
-        cpf,
+      const dataEntities = {
+        nome_fantasia: data.nome,
+        razao_social: data.razao,
+        cnpj,
         telefone: data.telefone,
         email: data.email,
-        id_empresa: 1,
+        endereco: data.endereco,
       };
 
       if (id) {
-        await ContributorService.updateContributor(id, dataContributors);
-        sucessAlert({ msg: 'Colaborador alterado com sucesso' });
+        await EntityService.updateEntity(id, dataEntities);
+        sucessAlert({ msg: 'Entidade alterada com sucesso' });
       } else {
-        await ContributorService.createContributor(dataContributors);
-        sucessAlert({ msg: 'Colaborador cadastrado com sucesso' });
+        await EntityService.createEntity(dataEntities);
+        sucessAlert({ msg: 'Entidade cadastrada com sucesso' });
       }
-      navigate('/adm/colaboradores');
+      navigate('/adm/entidades');
     } catch (err) {
       errorAlert({ msg: `Erro inesperado ${err}` });
     }
@@ -78,28 +80,28 @@ export default function ContributorsForm({ id, buttonLabel }) {
       <FormGrouping error={errors.nome?.message}>
         <Input
           error={errors.nome?.message}
-          placeholder="Nome *"
+          placeholder="Nome fantasia *"
           {...register('nome')}
           maxLength={60}
         />
       </FormGrouping>
 
-      <FormGrouping error={errors.sobrenome?.message}>
+      <FormGrouping error={errors.razao?.message}>
         <Input
-          error={errors.sobrenome?.message}
-          placeholder="Sobrenome"
-          {...register('sobrenome')}
+          error={errors.razao?.message}
+          placeholder="Razão social"
+          {...register('razao')}
           maxLength={60}
         />
       </FormGrouping>
 
-      <FormGrouping error={errors.cpf?.message}>
+      <FormGrouping error={errors.cnpj?.message}>
         <Input
-          error={errors.cpf?.message}
-          placeholder="CPF"
-          value={cpf}
-          onChange={(e) => setCpf(formatCpf(e.target.value))}
-          maxLength={14}
+          error={errors.cnpj?.message}
+          placeholder="CNPJ"
+          value={cnpj}
+          onChange={(e) => setCnpj(formatCnpj(e.target.value))}
+          maxLength={18}
         />
       </FormGrouping>
 
@@ -118,6 +120,15 @@ export default function ContributorsForm({ id, buttonLabel }) {
           placeholder="E-mail"
           {...register('email')}
           maxLength={60}
+        />
+      </FormGrouping>
+
+      <FormGrouping error={errors.endereco?.message}>
+        <Input
+          error={errors.endereco?.message}
+          placeholder="Endereço"
+          {...register('endereco')}
+          maxLength={120}
         />
       </FormGrouping>
 

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 export default styled.table`
     width: 100%;
     border-collapse: collapse;
+    margin-bottom: 24px;
 
     thead{
         background: ${({ theme }) => theme.colors.primary.main};
@@ -32,13 +33,14 @@ export default styled.table`
 
         .edit{
             cursor: pointer;
-            color: ${({ theme }) => theme.colors.primary.main};
+            color: ${({ theme }) => theme.colors.green.main};
+
             margin-right: 8px;
             &:hover{
-                color: ${({ theme }) => theme.colors.primary.light};
+                color: ${({ theme }) => theme.colors.green.light};
             }
             &:active{
-                color: ${({ theme }) => theme.colors.primary.dark};
+                color: ${({ theme }) => theme.colors.green.dark};
             }
         }
 

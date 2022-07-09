@@ -28,6 +28,14 @@ export const Container = styled.header`
         }
     }
 
+    button{
+        display: flex;
+        align-items: center;
+        svg{
+            margin-right: 8px;
+        }
+    }
+
     @media only screen and (max-width: 520px){
         strong{
             font-size: 24px;

@@ -3,7 +3,7 @@ export default function reportFooter(currentPage, pageCount) {
     {
       text: `${currentPage} / ${pageCount}`,
       alignment: 'right',
-      fontSize: 10,
+      fontSize: 9,
       margin: [0, 10, 20, 0],
     },
   ];

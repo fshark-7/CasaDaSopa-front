@@ -19,7 +19,7 @@ export default styled.textarea`
     }
 
     ${({ theme, error }) => error && css`
-        color: ${theme.colors.red.dark};
-        border-color: ${theme.colors.red.dark} !important;
+        color: ${theme.colors.danger.main};
+        border-color: ${theme.colors.danger.main} !important;
     `}
 `;

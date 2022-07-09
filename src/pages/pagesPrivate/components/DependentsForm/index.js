@@ -1,7 +1,8 @@
-import { useEffect, useState, useCallback } from 'react';
-
-import formatCpf from '../../../../utils/formatCpf';
-import useErrors from '../../../../hooks/useErrors';
+import { useEffect, useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 import { Form, ButtonContainer } from './styles';
 
@@ -12,36 +13,46 @@ import Select from '../../../../components/Select';
 import TextArea from '../../../../components/TextArea';
 import Button from '../../../../components/Button';
 import { sucessAlert, errorAlert } from '../../../../utils/showAlert';
+import formatCpf from '../../../../utils/formatCpf';
+import formatNascimento from '../../../../utils/formatNascimento';
+import Loader from '../../../../components/Loader';
+
+const schema = yup.object({
+  nome: yup.string().required('O nome é obrigatório.').min(3, 'O nome deve ter pelo menos 3 caractéres.'),
+  sobrenome: yup.string().required('O sobrenome é obrigatório.').min(3, 'O sobrenome deve ter pelo menos 3 caractéres.'),
+  sexo: yup.string().required('O sexo é obrigatório.'),
+}).required();
 
 export default function DependentsForm({
   id, buttonLabel, idFamily,
 }) {
-  const [nome, setNome] = useState('');
-  const [sobrenome, setSobrenome] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [cpf, setCpf] = useState('');
-  const [dataNasc, setDataNasc] = useState('');
-  const [sexo, setSexo] = useState('');
-  const [outrasInformacoes, setOutrasInformacoes] = useState('');
+  const [nascimento, setNascimento] = useState('');
 
+  const navigate = useNavigate();
   const {
-    setError, removeError, getErrorsMEssageByFieldName, errors,
-  } = useErrors();
-
-  const isFormValid = (nome && errors.length === 0);
+    register, handleSubmit, setValue, formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
 
   const getDataContributor = useCallback(async () => {
     try {
+      setIsLoading(true);
       const { data } = await DependentService.getDependent(id);
-      setNome(data.nome);
-      setSobrenome(data.sobrenome);
+      setValue('nome', data.nome);
+      setValue('sobrenome', data.sobrenome);
       setCpf(data.cpf);
-      setDataNasc(data.data_nasc);
-      setSexo(data.sexo);
-      setOutrasInformacoes(data.outras_informacoes);
+      setNascimento(data.data_nasc);
+      setValue('sexo', data.sexo);
+      setValue('outrasInformacoes', data.outras_informacoes);
     } catch (err) {
       errorAlert({ msg: 'Erro ao buscar dados do dependente' });
+    } finally {
+      setIsLoading(false);
     }
-  }, [id]);
+  }, [id, setValue]);
 
   useEffect(() => {
     if (id) {
@@ -49,34 +60,20 @@ export default function DependentsForm({
     }
   }, [getDataContributor, id]);
 
-  const handleNomeChange = (e) => {
-    setNome(e.target.value);
-    if (!e.target.value) {
-      setError({ field: 'nome', message: 'Nome é obrigatório.' });
-    } else {
-      removeError('nome');
-    }
-  };
+  useEffect(() => () => {
+    localStorage.removeItem('idFamily');
+  });
 
-  const handleDataNascimento = (e) => {
-    setDataNasc(e.target.value);
-  };
-
-  const handleCpfChange = (e) => {
-    setCpf(formatCpf(e.target.value));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     try {
       const dataDepend = {
         id_responsavel: idFamily,
-        nome,
-        sobrenome,
+        nome: data.nome,
+        sobrenome: data.nome,
         cpf,
-        data_nasc: dataNasc,
-        sexo,
-        outras_informacoes: outrasInformacoes,
+        data_nasc: nascimento,
+        sexo: data.sexo,
+        outras_informacoes: data.outrasInformacoes,
         id_empresa: 1,
       };
 
@@ -87,52 +84,58 @@ export default function DependentsForm({
         await DependentService.createDependent(dataDepend);
         sucessAlert({ msg: 'Dependente cadastrado com sucesso' });
       }
+      navigate(`/adm/familia/edit/${idFamily}`);
     } catch (err) {
       errorAlert({ msg: `Erro inesperado ${err}` });
     }
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <FormGrouping error={getErrorsMEssageByFieldName('nome')}>
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      {isLoading && <Loader />}
+      <FormGrouping error={errors.nome?.message}>
         <Input
-          error={getErrorsMEssageByFieldName('nome')}
+          error={errors.nome?.message}
           placeholder="Nome *"
-          value={nome}
-          onChange={handleNomeChange}
+          {...register('nome')}
+          maxLength={60}
         />
       </FormGrouping>
 
-      <FormGrouping>
+      <FormGrouping error={errors.sobrenome?.message}>
         <Input
+          error={errors.sobrenome?.message}
           placeholder="Sobrenome"
-          value={sobrenome}
-          onChange={(e) => setSobrenome(e.target.value)}
+          {...register('sobrenome')}
+          maxLength={60}
         />
       </FormGrouping>
 
-      <FormGrouping>
+      <FormGrouping error={errors.cpf?.message}>
         <Input
+          error={errors.cpf?.message}
           placeholder="CPF"
           value={cpf}
-          onChange={handleCpfChange}
-          maxLength="14"
+          onChange={(e) => setCpf(formatCpf(e.target.value))}
+          maxLength={14}
         />
       </FormGrouping>
 
-      <FormGrouping>
+      <FormGrouping error={errors.dataNasc?.message}>
         <Input
-          type="dataNasc"
+          error={errors.dataNasc?.message}
           placeholder="Data de nascimento"
-          value={dataNasc}
-          onChange={handleDataNascimento}
+          value={nascimento}
+          onChange={(e) => setNascimento(formatNascimento(e.target.value))}
+          maxLength={10}
         />
+
       </FormGrouping>
 
-      <FormGrouping>
+      <FormGrouping error={errors.sexo?.message}>
         <Select
-          value={sexo}
-          onChange={(e) => setSexo(e.target.value)}
+          error={errors.sexo?.message}
+          {...register('sexo')}
         >
           <option value="">
             Informe o sexo
@@ -151,14 +154,14 @@ export default function DependentsForm({
 
       <FormGrouping>
         <TextArea
-          value={outrasInformacoes}
-          onChange={(e) => setOutrasInformacoes(e.target.value)}
           placeholder="Observações, medicamentos que toma periodicamente..."
+          {...register('outrasInformacoes')}
+          maxLength={240}
         />
       </FormGrouping>
 
       <ButtonContainer>
-        <Button type="submit" disabled={!isFormValid}>{buttonLabel}</Button>
+        <Button type="submit">{buttonLabel}</Button>
       </ButtonContainer>
     </Form>
   );

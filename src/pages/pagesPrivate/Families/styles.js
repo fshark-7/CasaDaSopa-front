@@ -26,5 +26,13 @@ export const TableContent = styled.div`
         margin-left: 16px;
         font-size: 16px;
         cursor: pointer;
+        color: ${({ theme }) => theme.colors.primary.main};
+
+        &:hover{
+            color: ${({ theme }) => theme.colors.primary.light};
+        }
+        &:active{
+            color: ${({ theme }) => theme.colors.primary.dark};
+        }
     }
 `;

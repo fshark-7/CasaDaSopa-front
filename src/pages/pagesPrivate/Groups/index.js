@@ -14,6 +14,7 @@ import ErrorContainer from '../components/ErrorContainer';
 import InputSearch from '../../../components/InputSearch';
 import Table from '../components/Table';
 import { errorAlert, confirmeDeletAlert } from '../../../utils/showAlert';
+import gruposPDF from '../components/Reports/GruposRelatorio';
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);
@@ -83,6 +84,7 @@ export default function Groups() {
           textPlu="grupos"
           textButtom="Novo grupo"
           to="/adm/grupos/new"
+          print={() => gruposPDF(groups)}
         />
 
         {hasError && (
@@ -94,7 +96,6 @@ export default function Groups() {
 
         {
             filteredGroups.length > 0
-
               ? (
                 <TableContent>
                   <Table>

@@ -24,6 +24,28 @@ export const InputSearch = styled.div`
     }
 `;
 
+export const CheckBox = styled.input`
+    height: 18px;
+    width: 18px;
+    background: ${({ theme }) => theme.colors.primary.main};
+    border-radius: 2px;
+    cursor: pointer;
+`;
+
 export const TableContent = styled.div`
-    margin-top: 24px;
+    height: 340px;
+    overflow: auto;
+    margin-top: 16px;
+
+    td{
+        svg{
+            font-size: 18px;
+            cursor: pointer;
+            color: ${({ theme }) => theme.colors.primary.main};
+
+            &.active{
+                color: red;
+            }
+        }
+    }
 `;

@@ -33,6 +33,10 @@ export default function Requests() {
     loadRequests();
   };
 
+  const requestsOpened = () => requests.filter((req) => (
+    req.status === 'Solicitação Aberta'
+  ));
+
   return (
     <Container>
       { isLoading && <Loader />}
@@ -50,7 +54,7 @@ export default function Requests() {
 
       <Content>
         {
-            requests.map((request) => (
+            requestsOpened().map((request) => (
               <Card key={request.id}>
                 <Title>
                   <strong>{request.titulo}</strong>

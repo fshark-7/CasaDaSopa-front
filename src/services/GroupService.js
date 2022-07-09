@@ -6,11 +6,12 @@ class GroupService {
   }
 
   async listGroups() {
-    return this.httpClient.get('/grupo');
+    return this.httpClient.get('/test');
+    // return this.httpClient.get('/grupo');
   }
 
   async getGroup(id) {
-    return this.httpClient.getById(`/grupo/${id}`);
+    return this.httpClient.getById(`/test/${id}`);
   }
 
   async createGroup(groups) {

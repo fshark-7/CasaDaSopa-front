@@ -1,7 +1,8 @@
 import TitleSection from '../TitleSection';
 import ContainerSection from '../ContainerSection';
 import {
-  GaleryContainer, Photo, PhotoArea, MostGalery,
+  GaleryContainer, Photo, PhotoArea,
+//   MostGalery,
 } from './styles';
 
 import image1 from '../../../../assets/images/image1.jpeg';
@@ -41,9 +42,9 @@ export default function Galery() {
         }
 
       </GaleryContainer>
-      <MostGalery>
+      {/* <MostGalery>
         Ver mais..
-      </MostGalery>
+      </MostGalery> */}
     </ContainerSection>
   );
 }

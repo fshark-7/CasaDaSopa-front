@@ -6,7 +6,8 @@ import {
 import Button from '../Button';
 
 export default function Modal({
-  danger, children, titleBtn, titleModal, close,
+  danger, children, titleBtn,
+  titleModal, close, click,
 }) {
   return ReactDOM.createPortal(
     <Overlay>
@@ -23,7 +24,11 @@ export default function Modal({
           >
             Cancelar
           </button>
-          <Button danger={danger} type="button">
+          <Button
+            danger={danger}
+            type="button"
+            onClick={click}
+          >
             {titleBtn}
           </Button>
         </Footer>

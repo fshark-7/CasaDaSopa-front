@@ -14,6 +14,7 @@ import ErrorContainer from '../components/ErrorContainer';
 import InputSearch from '../../../components/InputSearch';
 import Table from '../components/Table';
 import { errorAlert, confirmeDeletAlert } from '../../../utils/showAlert';
+import EntidadesPDF from '../components/Reports/EntidadesRelatorio';
 
 export default function Entities() {
   const [entities, setEntities] = useState([]);
@@ -81,6 +82,7 @@ export default function Entities() {
           textPlu="entidades"
           textButtom="Nova entidade"
           to="/adm/entidades/new"
+          print={() => EntidadesPDF(entities)}
         />
 
         {hasError && (

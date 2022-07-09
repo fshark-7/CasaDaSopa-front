@@ -14,6 +14,7 @@ import ErrorContainer from '../components/ErrorContainer';
 import InputSearch from '../../../components/InputSearch';
 import Table from '../components/Table';
 import { errorAlert, confirmeDeletAlert } from '../../../utils/showAlert';
+import FamiliasPDF from '../components/Reports/FamiliasRelatorio ';
 
 export default function Families() {
   const [families, setFamilies] = useState([]);
@@ -58,9 +59,10 @@ export default function Families() {
       setIsLoading(true);
       await FamilyService.deleteFamily(id);
       loadFamilies();
-      setIsLoading(true);
     } catch (err) {
       errorAlert({ msg: `Erro ao excluir a família: ${err}` });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -91,6 +93,7 @@ export default function Families() {
           textPlu="famílias"
           textButtom="Nova família"
           to="/adm/familia/new"
+          print={() => FamiliasPDF(families)}
         />
 
         {hasError && (

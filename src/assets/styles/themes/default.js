@@ -12,6 +12,11 @@ const defaultTheme = {
       200: '#bcbcbc',
       100: '#e5e5e5',
     },
+    green: {
+      light: '#21ff7a',
+      main: '#00b34a',
+      dark: '#004d1e',
+    },
     danger: {
       light: '#f97171',
       main: '#fc5050',

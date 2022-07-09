@@ -1,8 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
-
-import formatPhone from '../../../../utils/formatPhone';
-import formatCpf from '../../../../utils/formatCpf';
-import useErrors from '../../../../hooks/useErrors';
+import { useEffect, useState } from 'react';
+import {
+  useForm,
+} from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 import { Form, ButtonContainer } from './styles';
 
@@ -13,92 +14,65 @@ import Select from '../../../../components/Select';
 import TextArea from '../../../../components/TextArea';
 import Button from '../../../../components/Button';
 import { sucessAlert, errorAlert } from '../../../../utils/showAlert';
+import formatCpf from '../../../../utils/formatCpf';
+import formatNascimento from '../../../../utils/formatNascimento';
+
+const schema = yup.object({
+  nome: yup.string().required('O nome é obrigatório.').min(3, 'O nome deve ter pelo menos 3 caractéres.'),
+  sobrenome: yup.string().required('O sobrenome é obrigatório.').min(3, 'O sobrenome deve ter pelo menos 3 caractéres.'),
+  telefone: yup.string().required('O telefone é obrigatório.').min(10, 'O telefone deve ter pelo menos 10 caractéres.'),
+  renda: yup.number().required().typeError('Renda inválida.'),
+  sexo: yup.string().required('O sexo é obrigatório.'),
+}).required();
 
 export default function FamiliesForm({
-  id, buttonLabel, func,
+  buttonLabel, func, setIdResp, responsavel,
 }) {
-  const [nome, setNome] = useState('');
-  const [sobrenome, setSobrenome] = useState('');
   const [cpf, setCpf] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [dataNasc, setDataNasc] = useState('');
-  const [sexo, setSexo] = useState('');
-  const [renda, setRenda] = useState('');
-  const [outrasInformacoes, setOutrasInformacoes] = useState('');
-
+  const [nascimento, setNascimento] = useState('');
   const {
-    setError, removeError, getErrorsMEssageByFieldName, errors,
-  } = useErrors();
-
-  const isFormValid = (nome && errors.length === 0);
-
-  const getDataContributor = useCallback(async () => {
-    try {
-      const { data } = await FamilyService.getFamily(id);
-      setNome(data.nome);
-      setSobrenome(data.sobrenome);
-      setCpf(data.cpf);
-      setTelefone(data.telefone);
-      setDataNasc(data.data_nasc);
-      setSexo(data.sexo);
-      setRenda(data.renda);
-      setOutrasInformacoes(data.outras_informacoes);
-    } catch (err) {
-      errorAlert({ msg: 'Erro ao buscar dados do responsável da família' });
-    }
-  }, [id]);
+    register, handleSubmit, setValue, formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
 
   useEffect(() => {
-    if (id) {
-      getDataContributor();
+    if (responsavel) {
+      setValue('nome', responsavel?.nome);
+      setValue('sobrenome', responsavel?.sobrenome);
+      setCpf(responsavel?.cpf);
+      setValue('telefone', responsavel?.telefone);
+      setNascimento(responsavel?.nascimento);
+      setValue('sexo', responsavel?.sexo);
+      setValue('renda', responsavel?.renda);
+      setValue('outrasInformacoes', responsavel?.outrasInformacoes);
     }
-  }, [getDataContributor, id]);
+  }, [setValue, responsavel]);
 
-  const handleNomeChange = (e) => {
-    setNome(e.target.value);
-    if (!e.target.value) {
-      setError({ field: 'nome', message: 'Nome é obrigatório.' });
-    } else {
-      removeError('nome');
-    }
-  };
-
-  const handleDataNascimento = (e) => {
-    setDataNasc(e.target.value);
-  };
-
-  const handlePhoneChange = (e) => {
-    setTelefone(formatPhone(e.target.value));
-  };
-
-  const handleCpfChange = (e) => {
-    setCpf(formatCpf(e.target.value));
-  };
-
-  const handleRenda = (e) => {
-    setRenda(e.target.value);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (dados) => {
+    let rendaResp = 0;
     try {
+      if (dados.renda !== '') {
+        rendaResp = Number(dados.renda);
+      }
       const dataFamilies = {
-        nome,
-        sobrenome,
+        nome: dados.nome,
+        sobrenome: dados.sobrenome,
         cpf,
-        telefone,
-        data_nasc: dataNasc,
-        renda,
-        sexo,
-        outras_informacoes: outrasInformacoes,
+        telefone: dados.telefone,
+        data_nasc: nascimento,
+        renda: rendaResp,
+        sexo: dados.sexo,
+        outras_informacoes: dados.outrasInformacoes,
         id_empresa: 1,
       };
 
-      if (id) {
-        await FamilyService.updateFamily(id, dataFamilies);
-        sucessAlert({ msg: 'Responsável da família cadastrada com sucesso' });
+      if (responsavel) {
+        await FamilyService.updateFamily(responsavel?.id, dataFamilies);
+        sucessAlert({ msg: 'Responsável da família Alerado com sucesso' });
       } else {
-        await FamilyService.createFamily(dataFamilies);
+        const { data } = await FamilyService.createFamily(dataFamilies);
+        setIdResp(data.id);
         sucessAlert({ msg: 'Responsável da família cadastrada com sucesso' });
       }
       func();
@@ -108,63 +82,66 @@ export default function FamiliesForm({
   };
 
   return (
-    <Form onSubmit={handleSubmit} noValidate>
-      <FormGrouping error={getErrorsMEssageByFieldName('nome')}>
+    <Form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <FormGrouping error={errors.nome?.message}>
         <Input
-          error={getErrorsMEssageByFieldName('nome')}
+          error={errors.nome?.message}
           placeholder="Nome *"
-          value={nome}
-          onChange={handleNomeChange}
+          {...register('nome')}
+          maxLength={60}
         />
       </FormGrouping>
 
-      <FormGrouping>
+      <FormGrouping error={errors.nome?.message}>
         <Input
-          placeholder="Sobrenome"
-          value={sobrenome}
-          onChange={(e) => setSobrenome(e.target.value)}
+          error={errors.nome?.message}
+          placeholder="Nome *"
+          {...register('nome')}
+          maxLength={60}
         />
       </FormGrouping>
 
-      <FormGrouping>
+      <FormGrouping error={errors.cpf?.message}>
         <Input
+          error={errors.cpf?.message}
           placeholder="CPF"
           value={cpf}
-          onChange={handleCpfChange}
-          maxLength="14"
+          onChange={(e) => (setCpf(formatCpf(e.target.value)))}
+          maxLength={60}
         />
       </FormGrouping>
 
-      <FormGrouping>
+      <FormGrouping error={errors.telefone?.message}>
         <Input
+          error={errors.telefone?.message}
           placeholder="Telefone"
-          value={telefone}
-          onChange={handlePhoneChange}
-          maxLength="15"
+          maxLength={20}
+          {...register('telefone')}
         />
       </FormGrouping>
 
-      <FormGrouping>
+      <FormGrouping error={errors.cpf?.message}>
         <Input
-          type="dataNasc"
+          error={errors.cpf?.message}
           placeholder="Data de nascimento"
-          value={dataNasc}
-          onChange={handleDataNascimento}
+          value={nascimento}
+          onChange={(e) => (setNascimento(formatNascimento(e.target.value)))}
+          maxLength={60}
         />
       </FormGrouping>
 
-      <FormGrouping>
+      <FormGrouping error={errors.renda?.message}>
         <Input
+          error={errors.renda?.message}
           placeholder="Informe a renda da casa"
-          value={renda}
-          onChange={handleRenda}
+          {...register('renda')}
         />
       </FormGrouping>
 
-      <FormGrouping>
+      <FormGrouping error={errors.sexo?.message}>
         <Select
-          value={sexo}
-          onChange={(e) => setSexo(e.target.value)}
+          error={errors.sexo?.message}
+          {...register('sexo')}
         >
           <option value="">
             Informe o sexo
@@ -183,14 +160,14 @@ export default function FamiliesForm({
 
       <FormGrouping>
         <TextArea
-          value={outrasInformacoes}
-          onChange={(e) => setOutrasInformacoes(e.target.value)}
           placeholder="Observações, medicamentos que toma periodicamente..."
+          {...register('outrasInformacoes')}
+          maxLength={240}
         />
       </FormGrouping>
 
       <ButtonContainer>
-        <Button type="submit" disabled={!isFormValid}>{buttonLabel}</Button>
+        <Button type="submit">{buttonLabel}</Button>
       </ButtonContainer>
     </Form>
   );
